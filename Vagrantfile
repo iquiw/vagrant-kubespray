@@ -6,36 +6,26 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "sagepe/stretch"
-  config.vm.boot_timeout = 600000
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.boot_timeout = 60000
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "1536"
   end
 
-  config.vm.define "node2" do |node|
-    node.vm.hostname = "node2.local"
-    node.vm.network "private_network", ip: "172.16.0.11"
-    node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
-    node.vm.provision "shell", inline: <<-SHELL
-      swapoff /dev/dm-1
+  ["node2", "node3"].each do |name|
+    config.vm.define name do |node|
+      node.vm.hostname = "#{name}.local"
+      node.vm.network "private_network", ip: "172.16.0.1#{name[-1]}"
+      node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
+      node.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y --no-install-recommends python3
 
-      mkdir -p ~/.ssh
-      chmod 700 ~/.ssh
-      cat /home/vagrant/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
-    SHELL
-  end
-
-  config.vm.define "node3" do |node|
-    node.vm.hostname = "node3.local"
-    node.vm.network "private_network", ip: "172.16.0.12"
-    node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
-    node.vm.provision "shell", inline: <<-SHELL
-      swapoff /dev/dm-1
-
-      mkdir -p ~/.ssh
-      chmod 700 ~/.ssh
-      cat /home/vagrant/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
-    SHELL
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        cat /home/vagrant/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+      SHELL
+    end
   end
 
   config.vm.define "node1", primary: true do |node|
@@ -44,8 +34,6 @@ Vagrant.configure("2") do |config|
     node.vm.provision "file", source: "id_ed25519", destination: "~/.ssh/id_ed25519"
     node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
     node.vm.provision "shell", inline: <<-SHELL
-      swapoff /dev/dm-1
-
       mkdir -p ~/.ssh
       chmod 700 ~/.ssh
       mv /home/vagrant/.ssh/id_ed25519 ~/.ssh/id_ed25519
@@ -54,7 +42,7 @@ Vagrant.configure("2") do |config|
       cat /home/vagrant/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
 
       apt-get update
-      apt-get install -y --no-install-recommends git virtualenv
+      apt-get install -y --no-install-recommends python3 virtualenv
 
       git clone --depth 1 https://github.com/kubernetes-incubator/kubespray.git
       cd kubespray
