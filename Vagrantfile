@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
       node.vm.network "private_network", ip: "172.16.0.1#{name[-1]}"
       node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
       node.vm.provision "shell", inline: <<-SHELL
-        swapoff /dev/sda5
+        swapoff -a
 
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
     node.vm.provision "file", source: "id_ed25519", destination: "~/.ssh/id_ed25519"
     node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
     node.vm.provision "shell", inline: <<-SHELL
-      swapoff /dev/sda5
+      swapoff -a
 
       mkdir -p ~/.ssh
       chmod 700 ~/.ssh
