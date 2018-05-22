@@ -6,8 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "elastic/ubuntu-16.04-x86_64"
-  config.vm.boot_timeout = 60000
+  config.vm.box = "bento/ubuntu-16.04"
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "1600"
   end
