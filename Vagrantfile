@@ -18,6 +18,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
       node.vm.provision "shell", inline: <<-SHELL
         swapoff -a
+        sed -i.bak -e 's,^\(/dev/mapper/vagrant--vg-swap_1\),#\1,' /etc/fstab
 
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
@@ -33,6 +34,7 @@ Vagrant.configure("2") do |config|
     node.vm.provision "file", source: "id_ed25519.pub", destination: "~/.ssh/id_ed25519.pub"
     node.vm.provision "shell", inline: <<-SHELL
       swapoff -a
+      sed -i.bak -e 's,^\(/dev/mapper/vagrant--vg-swap_1\),#\1,' /etc/fstab
 
       mkdir -p ~/.ssh
       chmod 700 ~/.ssh
